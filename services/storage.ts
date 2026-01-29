@@ -11,6 +11,7 @@ export interface Answer {
     date: string;        // YYYY-MM-DD format
     answerText: string;
     createdAt: number;   // Timestamp
+    isFavorite?: boolean;
 }
 
 export interface Settings {
@@ -43,6 +44,27 @@ export async function saveAnswer(answer: Answer): Promise<void> {
         await AsyncStorage.setItem(KEYS.ANSWERS, JSON.stringify(filtered));
     } catch (error) {
         console.error('Error saving answer:', error);
+        throw error;
+    }
+}
+
+/**
+ * Toggle favorite status of an answer
+ */
+export async function toggleFavorite(answerId: string): Promise<Answer | null> {
+    try {
+        const answers = await getAllAnswers();
+        const answerIndex = answers.findIndex(a => a.id === answerId);
+
+        if (answerIndex === -1) return null;
+
+        // Toggle status
+        answers[answerIndex].isFavorite = !answers[answerIndex].isFavorite;
+
+        await AsyncStorage.setItem(KEYS.ANSWERS, JSON.stringify(answers));
+        return answers[answerIndex];
+    } catch (error) {
+        console.error('Error toggling favorite:', error);
         throw error;
     }
 }

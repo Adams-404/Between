@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Modal, TouchableOpacity, TextInput } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Modal, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -7,25 +7,24 @@ import { HistoryItem } from '../../components/HistoryItem';
 import { QuestionCard } from '../../components/QuestionCard';
 import { useTheme } from '../../hooks/useTheme';
 import { getAllAnswers, Answer, toggleFavorite } from '../../services/storage';
-import { getPastDates, getQuestionForDate, formatDateForDisplay } from '../../services/questions';
+import { getQuestionForDate, formatDateForDisplay } from '../../services/questions';
 import { Typography } from '../../constants/Typography';
 import { QUESTIONS } from '../../data/questions';
 
-export default function HistoryScreen() {
+export default function FavoritesScreen() {
     const { colors } = useTheme();
-    const [answers, setAnswers] = useState<Answer[]>([]);
+    const [favorites, setFavorites] = useState<Answer[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedAnswer, setSelectedAnswer] = useState<{ answer: Answer; date: string } | null>(null);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [filteredItems, setFilteredItems] = useState<{ date: string; question: any; answer: Answer | null }[]>([]);
 
-    const loadHistory = useCallback(async () => {
+    const loadFavorites = useCallback(async () => {
         try {
             setIsLoading(true);
             const allAnswers = await getAllAnswers();
-            setAnswers(allAnswers);
+            const favoriteAnswers = allAnswers.filter(a => a.isFavorite);
+            setFavorites(favoriteAnswers);
         } catch (error) {
-            console.error('Error loading history:', error);
+            console.error('Error loading favorites:', error);
         } finally {
             setIsLoading(false);
         }
@@ -33,50 +32,9 @@ export default function HistoryScreen() {
 
     useFocusEffect(
         useCallback(() => {
-            loadHistory();
-        }, [loadHistory])
+            loadFavorites();
+        }, [loadFavorites])
     );
-
-    useEffect(() => {
-        // Prepare data for rendering/filtering
-        let items: { date: string; question: any; answer: Answer | null }[] = [];
-
-        if (searchQuery.trim()) {
-            // Search mode: Search across ALL answers (not just last 30 days)
-            const query = searchQuery.toLowerCase();
-            const matchingAnswers = answers.filter(answer => {
-                const question = QUESTIONS.find(q => q.id === answer.questionId);
-                const questionText = question?.text.toLowerCase() || '';
-                const answerText = answer.answerText.toLowerCase();
-                const category = question?.category?.toLowerCase() || '';
-
-                return (
-                    questionText.includes(query) ||
-                    answerText.includes(query) ||
-                    category.includes(query)
-                );
-            });
-
-            // Map to display items
-            items = matchingAnswers.map(answer => ({
-                date: answer.date,
-                question: QUESTIONS.find(q => q.id === answer.questionId),
-                answer: answer
-            }));
-        } else {
-            // Default mode: Show last 30 days
-            const dates = getPastDates(30);
-            const answersByDate = new Map(answers.map(a => [a.date, a]));
-
-            items = dates.map(date => ({
-                date,
-                question: getQuestionForDate(date),
-                answer: answersByDate.get(date) || null
-            }));
-        }
-
-        setFilteredItems(items);
-    }, [searchQuery, answers]);
 
     const handleToggleFavorite = async () => {
         if (!selectedAnswer) return;
@@ -84,16 +42,25 @@ export default function HistoryScreen() {
         try {
             const updatedAnswer = await toggleFavorite(selectedAnswer.answer.id);
             if (updatedAnswer) {
-                // Update local state
-                setAnswers(prev => prev.map(a => a.id === updatedAnswer.id ? updatedAnswer : a));
-                setSelectedAnswer({ ...selectedAnswer, answer: updatedAnswer });
+                // If unfavorited, remove from list or update
+                if (!updatedAnswer.isFavorite) {
+                    setFavorites(prev => prev.filter(a => a.id !== updatedAnswer.id));
+                    setSelectedAnswer(null); // Close modal since it's no longer a favorite? Or just update icon.
+                    // User might want to keep reading, so let's just update state but maybe not close immediately?
+                    // Actually, if it's a Favorites screen, removing it might feel abrupt if it disappears. 
+                    // But standard behavior is removing it.
+                    // Let's keep it simple: update the "selected" state.
+                } else {
+                    setSelectedAnswer({ ...selectedAnswer, answer: updatedAnswer });
+                }
+                loadFavorites(); // Refresh list
             }
         } catch (error) {
             console.error('Failed to toggle favorite', error);
         }
     };
 
-    if (isLoading && answers.length === 0) {
+    if (isLoading && favorites.length === 0) {
         return (
             <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
                 <ActivityIndicator size="large" color={colors.primary} />
@@ -105,48 +72,37 @@ export default function HistoryScreen() {
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <View style={styles.header}>
                 <Text style={[styles.title, { color: colors.text }]}>
-                    History
+                    Favorites
                 </Text>
-
-                <View style={[styles.searchContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
-                    <Ionicons name="search-outline" size={20} color={colors.textTertiary} style={styles.searchIcon} />
-                    <TextInput
-                        style={[styles.searchInput, { color: colors.text }]}
-                        placeholder="Search history..."
-                        placeholderTextColor={colors.textTertiary}
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                        clearButtonMode="while-editing"
-                        returnKeyType="search"
-                    />
-                </View>
-
-                {!searchQuery && (
-                    <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-                        Past 30 days
-                    </Text>
-                )}
+                <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+                    {favorites.length} {favorites.length === 1 ? 'moment' : 'moments'} saved
+                </Text>
             </View>
 
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
             >
-                {filteredItems.length > 0 ? (
-                    filteredItems.map(item => (
-                        <HistoryItem
-                            key={item.date}
-                            question={item.question}
-                            answer={item.answer}
-                            date={item.date}
-                            onPress={() => item.answer && setSelectedAnswer({ answer: item.answer, date: item.date })}
-                        />
-                    ))
+                {favorites.length > 0 ? (
+                    favorites.map(answer => {
+                        const question = QUESTIONS.find(q => q.id === answer.questionId);
+                        if (!question) return null;
+
+                        return (
+                            <HistoryItem
+                                key={answer.id}
+                                question={question}
+                                answer={answer}
+                                date={answer.date}
+                                onPress={() => setSelectedAnswer({ answer, date: answer.date })}
+                            />
+                        );
+                    })
                 ) : (
                     <View style={styles.emptyContainer}>
-                        <Ionicons name="search" size={48} color={colors.textTertiary} />
+                        <Ionicons name="star-outline" size={48} color={colors.textTertiary} />
                         <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-                            {searchQuery ? "No matching answers found." : "No history yet."}
+                            No favorites yet. {"\n"}Star your most meaningful reflections.
                         </Text>
                     </View>
                 )}
@@ -226,23 +182,6 @@ const styles = StyleSheet.create({
         fontWeight: Typography.fontWeight.bold,
         marginBottom: 8,
     },
-    searchContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        borderRadius: 12,
-        marginBottom: 8,
-        borderWidth: 1,
-    },
-    searchIcon: {
-        marginRight: 8,
-    },
-    searchInput: {
-        flex: 1,
-        fontSize: Typography.fontSize.base,
-        height: 24,
-    },
     subtitle: {
         fontSize: Typography.fontSize.base,
         color: '#6B7280',
@@ -294,10 +233,12 @@ const styles = StyleSheet.create({
     emptyContainer: {
         padding: 40,
         alignItems: 'center',
+        marginTop: 60,
     },
     emptyText: {
         marginTop: 16,
         fontSize: Typography.fontSize.base,
         textAlign: 'center',
+        lineHeight: 24,
     },
 });

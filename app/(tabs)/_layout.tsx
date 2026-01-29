@@ -60,7 +60,16 @@ export default function TabLayout() {
                 options={{
                     title: 'History',
                     tabBarIcon: ({ color, size }: { color: string; size: number }) => (
-                        <Ionicons name="calendar-outline" size={size} color={color} />
+                        <Ionicons name="book-outline" size={size} color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="favorites"
+                options={{
+                    title: 'Favorites',
+                    tabBarIcon: ({ color, size }: { color: string; size: number }) => (
+                        <Ionicons name="star-outline" size={size} color={color} />
                     ),
                 }}
             />
