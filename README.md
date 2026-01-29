@@ -1,4 +1,4 @@
-# Daily Questions App
+# Between
 
 > A calm, personal, offline-first mobile app that presents one thoughtful question per day.
 
@@ -23,13 +23,7 @@ This is **not** a todo list, journal, or productivity app. It's a quiet space fo
 - ✅ **Light/Dark Mode** - Calm, minimal UI in both themes
 - ✅ **Offline-First** - Everything works without internet
 - ✅ **Optional Notifications** - Gentle daily reminder (no sound)
-
-### Intentional Non-Features
-- ❌ No social sharing
-- ❌ No streaks or badges
-- ❌ No productivity metrics
-- ❌ No pressure or shame
-
+  
 ---
 
 ## App Structure
@@ -378,7 +372,7 @@ Here's a sample of the 90 questions included:
 
 ## Conclusion
 
-This app is designed to be a **calm companion** for self-reflection, not another productivity tool. Every design decision prioritizes peace, honesty, and simplicity.
+This app is designed to be a **calm companion** for self-reflection. Every design decision prioritizes peace, honesty, and simplicity.
 
 The goal is not to track everything or maximize engagement. The goal is to create a quiet space where you can think honestly about one thoughtful question each day.
 
