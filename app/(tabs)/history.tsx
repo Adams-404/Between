@@ -18,6 +18,7 @@ export default function HistoryScreen() {
     const [selectedAnswer, setSelectedAnswer] = useState<{ answer: Answer; date: string } | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredItems, setFilteredItems] = useState<{ date: string; question: any; answer: Answer | null }[]>([]);
+    const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
     const loadHistory = useCallback(async () => {
         try {
@@ -41,10 +42,17 @@ export default function HistoryScreen() {
         // Prepare data for rendering/filtering
         let items: { date: string; question: any; answer: Answer | null }[] = [];
 
+        let targetAnswers = answers;
+
+        // Filter by Favorites if toggle is active
+        if (showFavoritesOnly) {
+            targetAnswers = targetAnswers.filter(a => a.isFavorite);
+        }
+
         if (searchQuery.trim()) {
-            // Search mode: Search across ALL answers (not just last 30 days)
+            // Search mode: Search across target answers
             const query = searchQuery.toLowerCase();
-            const matchingAnswers = answers.filter(answer => {
+            const matchingAnswers = targetAnswers.filter(answer => {
                 const question = QUESTIONS.find(q => q.id === answer.questionId);
                 const questionText = question?.text.toLowerCase() || '';
                 const answerText = answer.answerText.toLowerCase();
@@ -64,19 +72,29 @@ export default function HistoryScreen() {
                 answer: answer
             }));
         } else {
-            // Default mode: Show last 30 days
-            const dates = getPastDates(30);
-            const answersByDate = new Map(answers.map(a => [a.date, a]));
+            // Default/Favorites mode
+            if (showFavoritesOnly) {
+                // Determine dates from the favorite answers
+                items = targetAnswers.map(answer => ({
+                    date: answer.date,
+                    question: QUESTIONS.find(q => q.id === answer.questionId),
+                    answer: answer
+                }));
+            } else {
+                // Standard View: Show last 30 days
+                const dates = getPastDates(30);
+                const answersByDate = new Map(answers.map(a => [a.date, a]));
 
-            items = dates.map(date => ({
-                date,
-                question: getQuestionForDate(date),
-                answer: answersByDate.get(date) || null
-            }));
+                items = dates.map(date => ({
+                    date,
+                    question: getQuestionForDate(date),
+                    answer: answersByDate.get(date) || null
+                }));
+            }
         }
 
         setFilteredItems(items);
-    }, [searchQuery, answers]);
+    }, [searchQuery, answers, showFavoritesOnly]);
 
     const handleToggleFavorite = async () => {
         if (!selectedAnswer) return;
@@ -108,22 +126,46 @@ export default function HistoryScreen() {
                     History
                 </Text>
 
-                <View style={[styles.searchContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
-                    <Ionicons name="search-outline" size={20} color={colors.textTertiary} style={styles.searchIcon} />
-                    <TextInput
-                        style={[styles.searchInput, { color: colors.text }]}
-                        placeholder="Search history..."
-                        placeholderTextColor={colors.textTertiary}
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                        clearButtonMode="while-editing"
-                        returnKeyType="search"
-                    />
+                <View style={styles.filterContainer}>
+                    <View style={[styles.searchContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
+                        <Ionicons name="search-outline" size={20} color={colors.textTertiary} style={styles.searchIcon} />
+                        <TextInput
+                            style={[styles.searchInput, { color: colors.text }]}
+                            placeholder="Search history..."
+                            placeholderTextColor={colors.textTertiary}
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                            clearButtonMode="while-editing"
+                            returnKeyType="search"
+                        />
+                    </View>
+
+                    <TouchableOpacity
+                        style={[
+                            styles.filterButton,
+                            {
+                                backgroundColor: showFavoritesOnly ? colors.primary : colors.cardBackground,
+                                borderColor: colors.border
+                            }
+                        ]}
+                        onPress={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                    >
+                        <Ionicons
+                            name={showFavoritesOnly ? "star" : "star-outline"}
+                            size={20}
+                            color={showFavoritesOnly ? "#FFFFFF" : colors.text}
+                        />
+                    </TouchableOpacity>
                 </View>
 
-                {!searchQuery && (
+                {!searchQuery && !showFavoritesOnly && (
                     <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
                         Past 30 days
+                    </Text>
+                )}
+                {showFavoritesOnly && (
+                    <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+                        Showing favorites
                     </Text>
                 )}
             </View>
@@ -226,14 +268,27 @@ const styles = StyleSheet.create({
         fontWeight: Typography.fontWeight.bold,
         marginBottom: 8,
     },
+    filterContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
     searchContainer: {
+        flex: 1,
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 16,
         paddingVertical: 12,
         borderRadius: 12,
-        marginBottom: 8,
         borderWidth: 1,
+        marginRight: 12, // Space between search and filter btn
+    },
+    filterButton: {
+        padding: 12,
+        borderRadius: 12,
+        borderWidth: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     searchIcon: {
         marginRight: 8,

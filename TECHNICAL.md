@@ -308,18 +308,23 @@ days              ↓
 Tap item -> Open Modal (with Star button)
 ```
 
-### Favorites Screen Flow
+### Analysis Screen Flow
 
 ```
-User taps Favorites tab
+User taps Analysis tab
     ↓
 Load all answers
     ↓
-Filter: isFavorite == true
+Analyze Pattern:
+  - Count categories
+  - Check frequency
+  - Determine top themes
     ↓
-Render filtered list
+Generate "AI Insight" text based on heuristic rules
     ↓
-Tap item -> Open Modal (can remove favorite)
+Render:
+  - Insight Card
+  - Themes Ranking
 ```
 
 ### Settings Screen Flow
