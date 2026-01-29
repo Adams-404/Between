@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { useTheme } from '../hooks/useTheme';
 import { Typography } from '../constants/Typography';
 
@@ -10,7 +11,8 @@ interface AnswerInputProps {
 }
 
 export function AnswerInput({ initialValue = '', onSubmit, disabled = false }: AnswerInputProps) {
-    const { colors } = useTheme();
+    const { colors, theme } = useTheme();
+    const isDark = theme === 'dark';
     const [text, setText] = useState(initialValue);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -31,23 +33,25 @@ export function AnswerInput({ initialValue = '', onSubmit, disabled = false }: A
 
     return (
         <View style={styles.container}>
-            <TextInput
-                style={[
-                    styles.input,
-                    {
-                        backgroundColor: colors.cardBackground,
-                        color: colors.text,
-                        borderColor: colors.border,
-                    },
-                ]}
-                value={text}
-                onChangeText={setText}
-                placeholder="Take your time. Write as much or as little as you like."
-                placeholderTextColor={colors.textTertiary}
-                multiline
-                textAlignVertical="top"
-                editable={!disabled && !isSaving}
-            />
+            <View
+                style={[styles.inputContainer, { borderColor: colors.border, backgroundColor: colors.cardBackground }]}
+            >
+                <TextInput
+                    style={[
+                        styles.input,
+                        {
+                            color: colors.text,
+                        },
+                    ]}
+                    value={text}
+                    onChangeText={setText}
+                    placeholder="Take your time. Write as much or as little as you like."
+                    placeholderTextColor={colors.textTertiary}
+                    multiline
+                    textAlignVertical="top"
+                    editable={!disabled && !isSaving}
+                />
+            </View>
 
             {!disabled && (
                 <TouchableOpacity
@@ -55,6 +59,7 @@ export function AnswerInput({ initialValue = '', onSubmit, disabled = false }: A
                         styles.button,
                         {
                             backgroundColor: hasText ? colors.primary : colors.muted,
+                            opacity: hasText ? 1 : 0.6,
                         },
                     ]}
                     onPress={handleSubmit}
@@ -75,27 +80,36 @@ export function AnswerInput({ initialValue = '', onSubmit, disabled = false }: A
 
 const styles = StyleSheet.create({
     container: {
-        gap: 16,
+        gap: 20,
+    },
+    inputContainer: {
+        borderRadius: 20,
+        overflow: 'hidden',
+        borderWidth: 1,
     },
     input: {
-        borderWidth: 1,
-        borderRadius: 12,
-        padding: 16,
+        padding: 24,
         fontSize: Typography.fontSize.base,
-        lineHeight: Typography.fontSize.base * Typography.lineHeight.relaxed,
-        minHeight: 160,
+        lineHeight: Typography.fontSize.base * 1.6,
+        minHeight: 180,
         maxHeight: 400,
+        backgroundColor: 'transparent',
     },
     button: {
-        borderRadius: 12,
-        padding: 16,
+        borderRadius: 20,
+        padding: 18,
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: 52,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 4,
     },
     buttonText: {
         color: '#FFFFFF',
         fontSize: Typography.fontSize.base,
-        fontWeight: Typography.fontWeight.semibold,
+        fontWeight: Typography.fontWeight.bold,
+        letterSpacing: 0.5,
     },
 });

@@ -294,26 +294,37 @@ Show answer   Show input area
 ```
 User taps History tab
     ↓
-Load all answers from storage
+Load answers
     ↓
-Generate last 30 dates
+┌──────────────┬──────────────────┐
+│ Default      │ Search Mode      │
+└──────────────┴──────────────────┘
+    ↓                 ↓
+List last 30    User types query
+days              ↓
+                Filter all answers
+                by text/category
+    ↓                 ↓
+Tap item -> Open Modal (with Star button)
+```
+
+### Analysis Screen Flow
+
+```
+User taps Analysis tab
     ↓
-For each date:
-  - Get question for that date
-  - Check if answered
+Load all answers
     ↓
-Render list
+Analyze Pattern:
+  - Count categories
+  - Check frequency
+  - Determine top themes
     ↓
-┌──────────────┬───────────────┐
-│ Tap answered │ Tap unanswered│
-└──────────────┴───────────────┘
-      ↓                ↓
-Open modal      Nothing happens
-Show full Q&A
-      ↓
-Tap "Close"
-      ↓
-Return to list
+Generate "AI Insight" text based on heuristic rules
+    ↓
+Render:
+  - Insight Card
+  - Themes Ranking
 ```
 
 ### Settings Screen Flow

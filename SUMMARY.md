@@ -19,9 +19,10 @@ A **calm, thoughtful, offline-first mobile app** for daily reflection. One quest
 - **No streaks, no pressure, no gamification**
 
 ### 2. App Information Architecture ✅
-**3 Screens with Bottom Tab Navigation:**
+**4 Screens with Bottom Tab Navigation:**
 - **Today** (Home) - Today's question and answer
-- **History** - Past 30 days of Q&A
+- **History** - Past 30 days, search, and favorites filter
+- **Analysis** - AI-powered insights and reflection patterns
 - **Settings** - Theme, notifications, data management
 
 ### 3. Data Model ✅
