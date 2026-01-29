@@ -1,59 +1,34 @@
-/**
- * Color palette for the app
- * Calm, minimal, easy on the eyes
- */
-
 export const Colors = {
     light: {
-        // Backgrounds
-        background: '#F8F9FA',
-        cardBackground: '#FFFFFF',
-
-        // Text
-        text: '#1A1A1A',
+        background: '#FFFFFF',
+        cardBackground: '#F5F5F7',
+        text: '#000000',
         textSecondary: '#6B7280',
         textTertiary: '#9CA3AF',
-
-        // Accents
-        primary: '#4F46E5',      // Calm indigo
+        primary: '#4F46E5',
         primaryLight: '#818CF8',
-
-        // Borders
         border: '#E5E7EB',
         borderLight: '#F3F4F6',
-
-        // Status
         success: '#10B981',
         muted: '#D1D5DB',
-
-        // Tab bar
         tabIconDefault: '#9CA3AF',
         tabIconSelected: '#4F46E5',
+        accent: '#4F46E5',
     },
     dark: {
-        // Backgrounds
-        background: '#0F1114',
-        cardBackground: '#1C1E22',
-
-        // Text
-        text: '#F9FAFB',
-        textSecondary: '#9CA3AF',
-        textTertiary: '#6B7280',
-
-        // Accents
-        primary: '#818CF8',      // Lighter indigo for dark mode
+        background: '#000000', // Pure Black
+        cardBackground: '#121212', // Dark Grey for cards
+        text: '#FFFFFF',
+        textSecondary: '#A1A1AA',
+        textTertiary: '#52525B',
+        primary: '#818CF8',
         primaryLight: '#A5B4FC',
-
-        // Borders
-        border: '#2D3139',
-        borderLight: '#252831',
-
-        // Status
+        border: '#27272A',
+        borderLight: '#3F3F46',
         success: '#34D399',
-        muted: '#4B5563',
-
-        // Tab bar
-        tabIconDefault: '#6B7280',
+        muted: '#52525B',
+        tabIconDefault: '#52525B',
         tabIconSelected: '#818CF8',
+        accent: '#818CF8',
     },
 };

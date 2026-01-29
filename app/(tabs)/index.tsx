@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { QuestionCard } from '../../components/QuestionCard';
 import { AnswerInput } from '../../components/AnswerInput';
 import { useTheme } from '../../hooks/useTheme';
@@ -10,7 +12,8 @@ import { getTodayDateString } from '../../services/questions';
 import { Typography } from '../../constants/Typography';
 
 export default function TodayScreen() {
-    const { colors } = useTheme();
+    const { colors, theme } = useTheme();
+    const isDark = theme === 'dark';
     const { question, answer, isLoading, isAnswered, refresh } = useTodayQuestion();
 
     const handleSubmitAnswer = async (text: string) => {
@@ -30,54 +33,57 @@ export default function TodayScreen() {
 
     if (isLoading) {
         return (
-            <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+            <View style={[styles.loadingContainer, { backgroundColor: 'transparent' }]}>
                 <ActivityIndicator size="large" color={colors.primary} />
             </View>
         );
     }
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
             >
                 <View style={styles.header}>
+                    <Text style={[styles.welcomeText, { color: colors.primary }]}>
+                        DAILY INSIGHT
+                    </Text>
                     <Text style={[styles.title, { color: colors.text }]}>
-                        Today
+                        Today's Question
                     </Text>
                     <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-                        One question. Your own answer.
+                        One question to reflect on your day.
                     </Text>
                 </View>
 
                 {question && (
-                    <>
+                    <View style={styles.contentContainer}>
                         <QuestionCard question={question} />
 
                         {isAnswered && answer ? (
-                            <View style={[styles.answeredContainer, { backgroundColor: colors.cardBackground }]}>
+                            <View style={[styles.answeredContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
                                 <Text style={[styles.answeredLabel, { color: colors.textSecondary }]}>
-                                    Your answer:
+                                    Your reflection:
                                 </Text>
                                 <Text style={[styles.answeredText, { color: colors.text }]}>
                                     {answer.answerText}
                                 </Text>
-                                <View style={[styles.lockBadge, { backgroundColor: colors.borderLight }]}>
-                                    <Text style={[styles.lockText, { color: colors.textTertiary }]}>
-                                        ✓ Answered for today
+                                <View style={[styles.lockBadge, { backgroundColor: 'rgba(52, 211, 153, 0.2)' }]}>
+                                    <Text style={[styles.lockText, { color: '#34D399' }]}>
+                                        ✓ Captured for today
                                     </Text>
                                 </View>
                             </View>
                         ) : (
                             <View>
                                 <Text style={[styles.promptLabel, { color: colors.textSecondary }]}>
-                                    Your answer:
+                                    Your reflection:
                                 </Text>
                                 <AnswerInput onSubmit={handleSubmitAnswer} />
                             </View>
                         )}
-                    </>
+                    </View>
                 )}
             </ScrollView>
         </SafeAreaView>
@@ -93,53 +99,70 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    // planetOrb and secondaryOrb removed
     scrollContent: {
-        padding: 20,
-        paddingBottom: 40,
+        padding: 24,
+        paddingBottom: 120,
     },
     header: {
-        marginBottom: 32,
+        marginTop: 20,
+        marginBottom: 40,
     },
-    title: {
-        fontSize: Typography.fontSize.xxxl,
+    welcomeText: {
+        fontSize: Typography.fontSize.sm,
         fontWeight: Typography.fontWeight.bold,
+        textTransform: 'uppercase',
+        letterSpacing: 2,
         marginBottom: 8,
     },
+    title: {
+        fontSize: 36,
+        fontWeight: '800', // Extra bold
+        marginBottom: 8,
+        letterSpacing: -0.5,
+    },
     subtitle: {
-        fontSize: Typography.fontSize.base,
-        lineHeight: Typography.fontSize.base * Typography.lineHeight.relaxed,
+        fontSize: Typography.fontSize.lg,
+        lineHeight: 28,
+        maxWidth: '80%',
+    },
+    contentContainer: {
+        gap: 8,
     },
     promptLabel: {
         fontSize: Typography.fontSize.sm,
         fontWeight: Typography.fontWeight.medium,
-        marginBottom: 12,
+        marginBottom: 16,
         textTransform: 'uppercase',
-        letterSpacing: 0.5,
+        letterSpacing: 1,
+        marginLeft: 4,
     },
     answeredContainer: {
-        borderRadius: 12,
-        padding: 20,
+        borderRadius: 24,
+        padding: 32,
+        overflow: 'hidden',
+        borderWidth: 1,
     },
     answeredLabel: {
         fontSize: Typography.fontSize.sm,
-        fontWeight: Typography.fontWeight.medium,
-        marginBottom: 12,
+        fontWeight: Typography.fontWeight.bold,
+        marginBottom: 16,
         textTransform: 'uppercase',
-        letterSpacing: 0.5,
+        letterSpacing: 1.5,
     },
     answeredText: {
-        fontSize: Typography.fontSize.base,
-        lineHeight: Typography.fontSize.base * Typography.lineHeight.relaxed,
-        marginBottom: 16,
+        fontSize: Typography.fontSize.lg,
+        lineHeight: Typography.fontSize.lg * 1.5,
+        marginBottom: 24,
     },
     lockBadge: {
         alignSelf: 'flex-start',
-        paddingHorizontal: 12,
+        paddingHorizontal: 16,
         paddingVertical: 8,
-        borderRadius: 8,
+        borderRadius: 20,
     },
     lockText: {
         fontSize: Typography.fontSize.sm,
-        fontWeight: Typography.fontWeight.medium,
+        fontWeight: Typography.fontWeight.bold,
     },
 });

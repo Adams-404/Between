@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { Question } from '../data/questions';
 import { useTheme } from '../hooks/useTheme';
 import { Typography } from '../constants/Typography';
@@ -13,9 +14,9 @@ export function QuestionCard({ question, date }: QuestionCardProps) {
     const { colors } = useTheme();
 
     return (
-        <View style={[styles.container, { backgroundColor: colors.cardBackground }]}>
+        <View style={[styles.container, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
             {date && (
-                <Text style={[styles.date, { color: colors.textTertiary }]}>
+                <Text style={[styles.date, { color: colors.accent || colors.primary }]}>
                     {date}
                 </Text>
             )}
@@ -35,37 +36,36 @@ export function QuestionCard({ question, date }: QuestionCardProps) {
 
 const styles = StyleSheet.create({
     container: {
-        borderRadius: 16,
-        padding: 24,
-        marginBottom: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        elevation: 2,
+        borderRadius: 24,
+        padding: 32,
+        marginBottom: 24,
+        overflow: 'hidden',
+        borderWidth: 1,
     },
     date: {
         fontSize: Typography.fontSize.sm,
-        fontWeight: Typography.fontWeight.medium,
+        fontWeight: Typography.fontWeight.bold,
         marginBottom: 12,
         textTransform: 'uppercase',
-        letterSpacing: 0.5,
+        letterSpacing: 1.5,
     },
     question: {
         fontSize: Typography.fontSize.xxl,
-        fontWeight: Typography.fontWeight.semibold,
-        lineHeight: Typography.fontSize.xxl * Typography.lineHeight.normal,
-        marginBottom: 16,
+        fontWeight: Typography.fontWeight.medium,
+        lineHeight: Typography.fontSize.xxl * 1.4,
+        marginBottom: 20,
+        textAlign: 'center',
     },
     categoryBadge: {
-        alignSelf: 'flex-start',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 12,
+        alignSelf: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 20,
     },
     categoryText: {
         fontSize: Typography.fontSize.xs,
         fontWeight: Typography.fontWeight.medium,
-        textTransform: 'capitalize',
+        textTransform: 'uppercase',
+        letterSpacing: 1,
     },
 });

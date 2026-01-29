@@ -57,7 +57,7 @@ export async function scheduleDailyNotification(time: string): Promise<void> {
                 data: {},
             },
             trigger: {
-                // @ts-ignore - Type definition mismatch in some Expo versions
+                type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
                 hour: hours,
                 minute: minutes,
                 repeats: true,
