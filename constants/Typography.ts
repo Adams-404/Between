@@ -1,34 +1,26 @@
 /**
  * Typography system
  * Apple iOS System Fonts
+ * 
+ * NOTE: On iOS, the system font IS SF Pro (San Francisco).
+ * We don't need to load external fonts - just use the system default.
+ * React Native automatically uses SF Pro on iOS when no fontFamily is specified.
  */
 
 export type FontPreference = 'apple' | 'system';
 
-// Apple SF Pro font family (iOS system font)
-// iOS automatically maps these to the correct SF font
-const AppleFonts = {
-    regular: 'System',  // iOS will use SF Pro
-    medium: 'System',
-    semibold: 'System',
-    bold: 'System',
-};
-
-// Explicit system fonts
-const SystemFonts = {
-    regular: 'System',
-    medium: 'System',
-    semibold: 'System',
-    bold: 'System',
-};
-
+// The preference doesn't actually change the font family
+// because iOS uses SF Pro as the system font by default
+// This is here for potential future Android customization
 export const getFontFamily = (preference: FontPreference = 'apple') => {
-    return preference === 'apple' ? AppleFonts : SystemFonts;
+    // On iOS: this will always use SF Pro (system font)
+    // On Android: this will use Roboto (system font)
+    return undefined; // Let React Native use the system default
 };
 
 export const Typography = {
-    // Font families - use Apple fonts by default
-    fontFamily: AppleFonts,
+    // Don't specify fontFamily - let system use default (SF Pro on iOS)
+    fontFamily: undefined,
 
     // Font sizes (Apple HIG recommended)
     fontSize: {
@@ -49,21 +41,22 @@ export const Typography = {
     },
 
     // Font weights (iOS system weights)
+    // These map directly to SF Pro weights on iOS
     fontWeight: {
-        normal: '400' as const,      // Regular
-        medium: '500' as const,      // Medium
-        semibold: '600' as const,    // Semibold
-        bold: '700' as const,        // Bold
+        normal: '400' as const,      // SF Pro Regular
+        medium: '500' as const,      // SF Pro Medium  
+        semibold: '600' as const,    // SF Pro Semibold
+        bold: '700' as const,        // SF Pro Bold
     },
 };
 
-// Helper to create text style with font family
+// Helper to create text style with proper font weight
+// No font family needed - iOS will use SF Pro automatically
 export const getTextStyle = (fontPreference: FontPreference = 'apple') => {
-    const fonts = getFontFamily(fontPreference);
     return {
-        regular: { fontFamily: fonts.regular, fontWeight: '400' as const },
-        medium: { fontFamily: fonts.medium, fontWeight: '500' as const },
-        semibold: { fontFamily: fonts.semibold, fontWeight: '600' as const },
-        bold: { fontFamily: fonts.bold, fontWeight: '700' as const },
+        regular: { fontWeight: '400' as const },
+        medium: { fontWeight: '500' as const },
+        semibold: { fontWeight: '600' as const },
+        bold: { fontWeight: '700' as const },
     };
 };

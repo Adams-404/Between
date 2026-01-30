@@ -4,7 +4,7 @@ import { Colors } from '../constants/Colors';
 import { getSettings, saveSettings, Settings } from '../services/storage';
 import { FontPreference, getFontFamily } from '../constants/Typography';
 
-export type ThemeMode = 'light' | 'dark' | 'auto';
+export type ThemeMode = 'light' | 'dark';
 
 interface ThemeContextType {
     theme: 'light' | 'dark';
@@ -21,7 +21,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const systemColorScheme = useColorScheme();
-    const [themeMode, setThemeMode] = useState<ThemeMode>('auto');
+    const [themeMode, setThemeMode] = useState<ThemeMode>('dark'); // Default to dark
     const [fontPreference, setFontPreferenceState] = useState<FontPreference>('apple');
     const [isLoading, setIsLoading] = useState(true);
 
@@ -30,18 +30,21 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         loadPreferences();
     }, []);
 
-    const actualTheme = themeMode === 'auto'
-        ? (systemColorScheme === 'dark' ? 'dark' : 'light')
-        : themeMode;
-
-    const colors = Colors[actualTheme];
+    const colors = Colors[themeMode];
+    // Font family is undefined - lets system use SF Pro on iOS
     const fontFamily = getFontFamily(fontPreference);
 
     async function loadPreferences() {
         try {
             const settings = await getSettings();
+            // Convert old 'auto' to system preference for backwards compatibility
             if (settings?.theme) {
-                setThemeMode(settings.theme);
+                if ((settings.theme as string) === 'auto') {
+                    const systemTheme = systemColorScheme === 'dark' ? 'dark' : 'light';
+                    setThemeMode(systemTheme);
+                } else {
+                    setThemeMode(settings.theme);
+                }
             }
             if (settings?.fontPreference) {
                 setFontPreferenceState(settings.fontPreference);
@@ -77,7 +80,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     return (
         <ThemeContext.Provider value={{
-            theme: actualTheme,
+            theme: themeMode,
             themeMode,
             colors,
             fontPreference,
