@@ -1,17 +1,36 @@
 /**
  * Typography system
- * Clean, readable, calm
+ * Apple iOS System Fonts
  */
 
-export const Typography = {
-    // Font families (using system fonts for now)
-    fontFamily: {
-        regular: 'System',
-        medium: 'System',
-        bold: 'System',
-    },
+export type FontPreference = 'apple' | 'system';
 
-    // Font sizes
+// Apple SF Pro font family (iOS system font)
+// iOS automatically maps these to the correct SF font
+const AppleFonts = {
+    regular: 'System',  // iOS will use SF Pro
+    medium: 'System',
+    semibold: 'System',
+    bold: 'System',
+};
+
+// Explicit system fonts
+const SystemFonts = {
+    regular: 'System',
+    medium: 'System',
+    semibold: 'System',
+    bold: 'System',
+};
+
+export const getFontFamily = (preference: FontPreference = 'apple') => {
+    return preference === 'apple' ? AppleFonts : SystemFonts;
+};
+
+export const Typography = {
+    // Font families - use Apple fonts by default
+    fontFamily: AppleFonts,
+
+    // Font sizes (Apple HIG recommended)
     fontSize: {
         xs: 12,
         sm: 14,
@@ -29,11 +48,22 @@ export const Typography = {
         relaxed: 1.75,
     },
 
-    // Font weights
+    // Font weights (iOS system weights)
     fontWeight: {
-        normal: '400' as const,
-        medium: '500' as const,
-        semibold: '600' as const,
-        bold: '700' as const,
+        normal: '400' as const,      // Regular
+        medium: '500' as const,      // Medium
+        semibold: '600' as const,    // Semibold
+        bold: '700' as const,        // Bold
     },
+};
+
+// Helper to create text style with font family
+export const getTextStyle = (fontPreference: FontPreference = 'apple') => {
+    const fonts = getFontFamily(fontPreference);
+    return {
+        regular: { fontFamily: fonts.regular, fontWeight: '400' as const },
+        medium: { fontFamily: fonts.medium, fontWeight: '500' as const },
+        semibold: { fontFamily: fonts.semibold, fontWeight: '600' as const },
+        bold: { fontFamily: fonts.bold, fontWeight: '700' as const },
+    };
 };

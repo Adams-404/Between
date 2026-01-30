@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { FontPreference } from '../constants/Typography';
 
 /**
  * Storage service for managing answers and settings
@@ -18,6 +19,7 @@ export interface Settings {
     theme: 'light' | 'dark' | 'auto';
     notificationEnabled: boolean;
     notificationTime: string; // HH:MM format
+    fontPreference?: FontPreference;
 }
 
 const KEYS = {
@@ -30,6 +32,7 @@ const DEFAULT_SETTINGS: Settings = {
     theme: 'auto',
     notificationEnabled: false,
     notificationTime: '09:00',
+    fontPreference: 'apple', // Default to Apple SF Pro font
 };
 
 /**

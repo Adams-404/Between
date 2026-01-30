@@ -19,7 +19,9 @@ This is **not** a todo list, journal, or productivity app. It's a quiet space fo
 - ✅ **Daily Question** - One deterministic question per day
 - ✅ **Answer Input** - Write as much or as little as you like
 - ✅ **Answer Locking** - Once answered, the question is saved for that day
+- ✅ **Journal** - Free-form daily writing with multiple entries per day
 - ✅ **History View** - Review past questions and answers (30 days)
+- ✅ **Insights** - AI-powered analysis of reflection patterns and themes
 - ✅ **Light/Dark Mode** - Calm, minimal UI in both themes
 - ✅ **Offline-First** - Everything works without internet
 - ✅ **Optional Notifications** - Gentle daily reminder (no sound)
@@ -40,8 +42,16 @@ This is **not** a todo list, journal, or productivity app. It's a quiet space fo
 📱 App Structure
 ├── Today (Home)
 │   └── Shows today's question and answer input
+├── Journal
+│   └── Free-form daily writing with multiple entries
 ├── History
-│   └── Past 30 days of questions and answers
+│   ├── Past 30 days of questions and answers
+│   ├── Search functionality
+│   └── Favorites filter
+├── Insights
+│   ├── AI-powered pattern analysis
+│   ├── Top themes tracking
+│   └── Writing statistics
 └── Settings
     ├── Theme (Light/Dark/Auto)
     ├── Notifications (On/Off + Time)
@@ -49,10 +59,12 @@ This is **not** a todo list, journal, or productivity app. It's a quiet space fo
 ```
 
 ### Navigation
-Bottom tab navigation with 3 tabs:
+Bottom tab navigation with 5 tabs:
 1. **Today** - Today's question (default screen)
-2. **History** - Past questions and answers
-3. **Settings** - App preferences
+2. **Journal** - Free-form daily writing
+3. **History** - Past questions and answers
+4. **Insights** - Reflection patterns and themes
+5. **Settings** - App preferences
 
 ---
 

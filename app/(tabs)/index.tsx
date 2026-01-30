@@ -1,10 +1,7 @@
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
-import { QuestionCard } from '../../components/QuestionCard';
-import { AnswerInput } from '../../components/AnswerInput';
+import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Animated, TouchableOpacity, TextInput } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../hooks/useTheme';
 import { useTodayQuestion } from '../../hooks/useTodayQuestion';
 import { saveAnswer, Answer } from '../../services/storage';
@@ -12,78 +9,170 @@ import { getTodayDateString } from '../../services/questions';
 import { Typography } from '../../constants/Typography';
 
 export default function TodayScreen() {
-    const { colors, theme } = useTheme();
-    const isDark = theme === 'dark';
+    const { colors } = useTheme();
+    const insets = useSafeAreaInsets();
     const { question, answer, isLoading, isAnswered, refresh } = useTodayQuestion();
+    const [text, setText] = React.useState('');
+    const [isSaving, setIsSaving] = React.useState(false);
+    const fadeAnim = React.useRef(new Animated.Value(0)).current;
 
-    const handleSubmitAnswer = async (text: string) => {
-        if (!question) return;
+    React.useEffect(() => {
+        if (question) {
+            Animated.timing(fadeAnim, {
+                toValue: 1,
+                duration: 400,
+                useNativeDriver: true,
+            }).start();
+        }
+    }, [question]);
 
-        const newAnswer: Answer = {
-            id: Date.now().toString(),
-            questionId: question.id,
-            date: getTodayDateString(),
-            answerText: text,
-            createdAt: Date.now(),
-        };
+    const handleSubmitAnswer = async () => {
+        if (!question || !text.trim()) return;
 
-        await saveAnswer(newAnswer);
-        refresh();
+        try {
+            setIsSaving(true);
+            const newAnswer: Answer = {
+                id: Date.now().toString(),
+                questionId: question.id,
+                date: getTodayDateString(),
+                answerText: text.trim(),
+                createdAt: Date.now(),
+            };
+
+            await saveAnswer(newAnswer);
+            setText('');
+            refresh();
+        } catch (error) {
+            console.error('Error saving answer:', error);
+        } finally {
+            setIsSaving(false);
+        }
     };
+
+    const hasText = text.trim().length > 0;
 
     if (isLoading) {
         return (
-            <View style={[styles.loadingContainer, { backgroundColor: 'transparent' }]}>
+            <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
                 <ActivityIndicator size="large" color={colors.primary} />
             </View>
         );
     }
 
+    const today = new Date().toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric'
+    });
+
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['left', 'right', 'bottom']}>
             <ScrollView
-                contentContainerStyle={styles.scrollContent}
+                style={styles.scrollView}
+                contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 20 }]}
                 showsVerticalScrollIndicator={false}
             >
-                <View style={styles.header}>
-                    <Text style={[styles.welcomeText, { color: colors.primary }]}>
-                        DAILY INSIGHT
-                    </Text>
-                    <Text style={[styles.title, { color: colors.text }]}>
-                        Today's Question
-                    </Text>
-                    <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-                        One question to reflect on your day.
+                {/* Date Header */}
+                <View style={styles.dateHeader}>
+                    <Ionicons name="calendar-outline" size={16} color={colors.primary} />
+                    <Text style={[styles.dateText, { color: colors.textSecondary }]}>
+                        {today}
                     </Text>
                 </View>
 
                 {question && (
-                    <View style={styles.contentContainer}>
-                        <QuestionCard question={question} />
+                    <Animated.View style={{ opacity: fadeAnim }}>
+                        {/* Question Card */}
+                        <View style={[styles.questionCard, {
+                            backgroundColor: colors.cardBackground,
+                            borderColor: colors.border,
+                        }]}>
+                            {question.category && (
+                                <View style={[styles.categoryBadge, { backgroundColor: colors.primary + '20' }]}>
+                                    <Text style={[styles.categoryText, { color: colors.primary }]}>
+                                        {question.category}
+                                    </Text>
+                                </View>
+                            )}
 
+                            <Text style={[styles.question, { color: colors.text }]}>
+                                {question.text}
+                            </Text>
+                        </View>
+
+                        {/* Answer Section */}
                         {isAnswered && answer ? (
-                            <View style={[styles.answeredContainer, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}>
-                                <Text style={[styles.answeredLabel, { color: colors.textSecondary }]}>
-                                    Your reflection:
-                                </Text>
+                            <View style={[styles.answeredCard, {
+                                backgroundColor: colors.cardBackground,
+                                borderColor: colors.success + '40',
+                            }]}>
+                                <View style={styles.answeredHeader}>
+                                    <Ionicons name="checkmark-circle" size={20} color={colors.success} />
+                                    <Text style={[styles.answeredLabel, { color: colors.success }]}>
+                                        Reflection Saved
+                                    </Text>
+                                </View>
+
                                 <Text style={[styles.answeredText, { color: colors.text }]}>
                                     {answer.answerText}
                                 </Text>
-                                <View style={[styles.lockBadge, { backgroundColor: 'rgba(52, 211, 153, 0.2)' }]}>
-                                    <Text style={[styles.lockText, { color: '#34D399' }]}>
-                                        ✓ Captured for today
+
+                                <View style={[styles.answeredFooter, { borderTopColor: colors.border }]}>
+                                    <Ionicons name="time-outline" size={14} color={colors.textTertiary} />
+                                    <Text style={[styles.answeredTime, { color: colors.textTertiary }]}>
+                                        {new Date(answer.createdAt).toLocaleTimeString('en-US', {
+                                            hour: 'numeric',
+                                            minute: '2-digit'
+                                        })}
                                     </Text>
                                 </View>
                             </View>
                         ) : (
-                            <View>
-                                <Text style={[styles.promptLabel, { color: colors.textSecondary }]}>
-                                    Your reflection:
+                            <View style={styles.answerSection}>
+                                <Text style={[styles.answerPrompt, { color: colors.textSecondary }]}>
+                                    Your Reflection
                                 </Text>
-                                <AnswerInput onSubmit={handleSubmitAnswer} />
+
+                                <View style={[styles.inputCard, {
+                                    backgroundColor: colors.cardBackground,
+                                    borderColor: colors.border,
+                                }]}>
+                                    <TextInput
+                                        style={[styles.input, { color: colors.text }]}
+                                        value={text}
+                                        onChangeText={setText}
+                                        placeholder="Take your time. Write as much or as little as you like..."
+                                        placeholderTextColor={colors.textTertiary}
+                                        multiline
+                                        numberOfLines={8}
+                                        editable={!isSaving}
+                                        textAlignVertical="top"
+                                    />
+                                </View>
+
+                                <TouchableOpacity
+                                    style={[styles.saveButton, {
+                                        backgroundColor: hasText ? colors.primary : colors.muted,
+                                        opacity: hasText ? 1 : 0.5,
+                                    }]}
+                                    onPress={handleSubmitAnswer}
+                                    disabled={!hasText || isSaving}
+                                    activeOpacity={0.8}
+                                >
+                                    {isSaving ? (
+                                        <ActivityIndicator color="#FFF" />
+                                    ) : (
+                                        <>
+                                            <Ionicons name="checkmark-circle-outline" size={20} color="#FFF" />
+                                            <Text style={styles.saveButtonText}>
+                                                Save Reflection
+                                            </Text>
+                                        </>
+                                    )}
+                                </TouchableOpacity>
                             </View>
                         )}
-                    </View>
+                    </Animated.View>
                 )}
             </ScrollView>
         </SafeAreaView>
@@ -99,70 +188,116 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    // planetOrb and secondaryOrb removed
+    scrollView: {
+        flex: 1,
+    },
     scrollContent: {
-        padding: 24,
+        padding: 20,
         paddingBottom: 120,
     },
-    header: {
-        marginTop: 20,
-        marginBottom: 40,
-    },
-    welcomeText: {
-        fontSize: Typography.fontSize.sm,
-        fontWeight: Typography.fontWeight.bold,
-        textTransform: 'uppercase',
-        letterSpacing: 2,
-        marginBottom: 8,
-    },
-    title: {
-        fontSize: 36,
-        fontWeight: '800', // Extra bold
-        marginBottom: 8,
-        letterSpacing: -0.5,
-    },
-    subtitle: {
-        fontSize: Typography.fontSize.lg,
-        lineHeight: 28,
-        maxWidth: '80%',
-    },
-    contentContainer: {
+    dateHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
         gap: 8,
+        marginBottom: 24,
     },
-    promptLabel: {
+    dateText: {
         fontSize: Typography.fontSize.sm,
         fontWeight: Typography.fontWeight.medium,
-        marginBottom: 16,
+    },
+    questionCard: {
+        borderRadius: 24,
+        padding: 28,
+        marginBottom: 24,
+        borderWidth: 1,
+        alignItems: 'center',
+    },
+    categoryBadge: {
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 12,
+        marginBottom: 20,
+    },
+    categoryText: {
+        fontSize: Typography.fontSize.xs,
+        fontWeight: Typography.fontWeight.bold,
         textTransform: 'uppercase',
         letterSpacing: 1,
-        marginLeft: 4,
     },
-    answeredContainer: {
-        borderRadius: 24,
-        padding: 32,
-        overflow: 'hidden',
+    question: {
+        fontSize: Typography.fontSize.xxl,
+        fontWeight: Typography.fontWeight.semibold,
+        lineHeight: Typography.fontSize.xxl * 1.4,
+        textAlign: 'center',
+    },
+    answerSection: {
+        gap: 16,
+    },
+    answerPrompt: {
+        fontSize: Typography.fontSize.xs,
+        fontWeight: Typography.fontWeight.bold,
+        textTransform: 'uppercase',
+        letterSpacing: 1,
+    },
+    inputCard: {
+        borderRadius: 20,
         borderWidth: 1,
+        padding: 20,
+        minHeight: 180,
+    },
+    input: {
+        fontSize: Typography.fontSize.base,
+        lineHeight: Typography.fontSize.base * 1.6,
+    },
+    saveButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        paddingVertical: 16,
+        borderRadius: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    saveButtonText: {
+        color: '#FFF',
+        fontSize: Typography.fontSize.base,
+        fontWeight: Typography.fontWeight.bold,
+    },
+    answeredCard: {
+        borderRadius: 20,
+        borderWidth: 2,
+        padding: 24,
+    },
+    answeredHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+        marginBottom: 16,
     },
     answeredLabel: {
         fontSize: Typography.fontSize.sm,
         fontWeight: Typography.fontWeight.bold,
-        marginBottom: 16,
         textTransform: 'uppercase',
-        letterSpacing: 1.5,
+        letterSpacing: 0.5,
     },
     answeredText: {
         fontSize: Typography.fontSize.lg,
-        lineHeight: Typography.fontSize.lg * 1.5,
-        marginBottom: 24,
+        lineHeight: Typography.fontSize.lg * 1.6,
+        marginBottom: 16,
     },
-    lockBadge: {
-        alignSelf: 'flex-start',
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 20,
+    answeredFooter: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        paddingTop: 16,
+        borderTopWidth: 1,
     },
-    lockText: {
-        fontSize: Typography.fontSize.sm,
-        fontWeight: Typography.fontWeight.bold,
+    answeredTime: {
+        fontSize: Typography.fontSize.xs,
+        fontWeight: Typography.fontWeight.medium,
     },
 });

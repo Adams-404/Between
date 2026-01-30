@@ -7,12 +7,13 @@ import { requestPermissions, scheduleDailyNotification, cancelAllNotifications }
 import { Typography } from '../../constants/Typography';
 
 export default function SettingsScreen() {
-    const { colors, themeMode, setTheme } = useTheme();
+    const { colors, themeMode, setTheme, fontPreference, setFontPreference } = useTheme();
     const insets = useSafeAreaInsets();
     const [settings, setLocalSettings] = useState<SettingsType>({
         theme: 'auto',
         notificationEnabled: false,
         notificationTime: '09:00',
+        fontPreference: 'apple',
     });
 
     useEffect(() => {
@@ -31,6 +32,12 @@ export default function SettingsScreen() {
 
         await setTheme(nextMode);
         setLocalSettings(prev => ({ ...prev, theme: nextMode }));
+    };
+
+    const handleFontChange = async () => {
+        const newFont = fontPreference === 'apple' ? 'system' : 'apple';
+        await setFontPreference(newFont);
+        setLocalSettings(prev => ({ ...prev, fontPreference: newFont }));
     };
 
     const handleNotificationToggle = async (value: boolean) => {
@@ -81,6 +88,10 @@ export default function SettingsScreen() {
         }
     };
 
+    const getFontLabel = () => {
+        return fontPreference === 'apple' ? 'Apple SF Pro' : 'System Font';
+    };
+
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['left', 'right', 'bottom']}>
             <View style={[styles.header, { paddingTop: insets.top || 20 }]}>
@@ -100,7 +111,7 @@ export default function SettingsScreen() {
                     </Text>
 
                     <TouchableOpacity
-                        style={[styles.row, { backgroundColor: colors.cardBackground }]}
+                        style={[styles.row, { backgroundColor: colors.cardBackground, borderTopLeftRadius: 16, borderTopRightRadius: 16 }]}
                         onPress={handleThemeChange}
                     >
                         <Text style={[styles.rowLabel, { color: colors.text }]}>
@@ -108,6 +119,20 @@ export default function SettingsScreen() {
                         </Text>
                         <Text style={[styles.rowValue, { color: colors.primary }]}>
                             {getThemeLabel()}
+                        </Text>
+                    </TouchableOpacity>
+
+                    <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+                    <TouchableOpacity
+                        style={[styles.row, { backgroundColor: colors.cardBackground, borderBottomLeftRadius: 16, borderBottomRightRadius: 16 }]}
+                        onPress={handleFontChange}
+                    >
+                        <Text style={[styles.rowLabel, { color: colors.text }]}>
+                            Font
+                        </Text>
+                        <Text style={[styles.rowValue, { color: colors.primary }]}>
+                            {getFontLabel()}
                         </Text>
                     </TouchableOpacity>
                 </View>
@@ -220,6 +245,10 @@ const styles = StyleSheet.create({
     rowValue: {
         fontSize: Typography.fontSize.base,
         fontWeight: Typography.fontWeight.semibold,
+    },
+    divider: {
+        height: 1,
+        marginHorizontal: 16,
     },
     infoBox: {
         padding: 16,

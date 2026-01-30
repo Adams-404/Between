@@ -11,7 +11,7 @@ export default function TabLayout() {
     return (
         <Tabs
             screenOptions={{
-                tabBarActiveTintColor: theme === 'dark' ? '#A5B4FC' : '#4F46E5',
+                tabBarActiveTintColor: theme === 'dark' ? '#0A84FF' : '#007AFF',
                 tabBarInactiveTintColor: colors.textTertiary,
                 headerShown: false,
                 tabBarStyle: {
@@ -26,7 +26,7 @@ export default function TabLayout() {
                     borderTopWidth: 0,
                     overflow: 'hidden',
                     // Liquid Glass shadow effect
-                    shadowColor: theme === 'dark' ? '#000' : '#4F46E5',
+                    shadowColor: theme === 'dark' ? '#000' : '#007AFF',
                     shadowOffset: {
                         width: 0,
                         height: 8,
@@ -75,6 +75,15 @@ export default function TabLayout() {
                     title: 'Today',
                     tabBarIcon: ({ color, size }: { color: string; size: number }) => (
                         <Ionicons name="today-outline" size={size} color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="journal"
+                options={{
+                    title: 'Journal',
+                    tabBarIcon: ({ color, size }: { color: string; size: number }) => (
+                        <Ionicons name="create-outline" size={size} color={color} />
                     ),
                 }}
             />
