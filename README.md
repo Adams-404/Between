@@ -1,4 +1,4 @@
-# Daily Questions App
+# Between
 
 > A calm, personal, offline-first mobile app that presents one thoughtful question per day.
 

@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "daily-questions-app",
-    "slug": "daily-questions-app",
+    "name": "Between",
+    "slug": "between",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "scheme": "dailyquestions",
+    "scheme": "between",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",

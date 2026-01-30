@@ -355,7 +355,7 @@ export default function SettingsScreen() {
                             <Ionicons name="calendar" size={32} color={colors.primary} />
                         </View>
                         <Text style={[styles.appName, { color: colors.text }]}>
-                            Daily Questions
+                            Between
                         </Text>
                         <Text style={[styles.appVersion, { color: colors.textSecondary }]}>
                             Version 1.0.0
