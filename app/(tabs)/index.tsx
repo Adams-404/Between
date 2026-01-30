@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Animated, TouchableOpacity, TextInput } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useTheme } from '../../hooks/useTheme';
 import { useTodayQuestion } from '../../hooks/useTodayQuestion';
 import { saveAnswer, Answer } from '../../services/storage';
@@ -73,11 +74,23 @@ export default function TodayScreen() {
                 showsVerticalScrollIndicator={false}
             >
                 {/* Date Header */}
-                <View style={styles.dateHeader}>
-                    <Ionicons name="calendar-outline" size={16} color={colors.primary} />
-                    <Text style={[styles.dateText, { color: colors.textSecondary }]}>
-                        {today}
-                    </Text>
+                <View style={styles.headerContainer}>
+                    <View style={styles.dateHeader}>
+                        <Ionicons name="calendar-outline" size={16} color={colors.primary} />
+                        <Text style={[styles.dateText, { color: colors.textSecondary }]}>
+                            {today}
+                        </Text>
+                    </View>
+
+                    <TouchableOpacity
+                        style={[styles.historyButton, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
+                        onPress={() => router.push('/history')}
+                    >
+                        <Ionicons name="book-outline" size={20} color={colors.primary} />
+                        <Text style={[styles.historyButtonText, { color: colors.primary }]}>
+                            History
+                        </Text>
+                    </TouchableOpacity>
                 </View>
 
                 {question && (
@@ -175,7 +188,7 @@ export default function TodayScreen() {
                     </Animated.View>
                 )}
             </ScrollView>
-        </SafeAreaView>
+        </SafeAreaView >
     );
 }
 
@@ -195,15 +208,33 @@ const styles = StyleSheet.create({
         padding: 20,
         paddingBottom: 120,
     },
+    headerContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 24,
+    },
     dateHeader: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
-        marginBottom: 24,
     },
     dateText: {
         fontSize: Typography.fontSize.sm,
         fontWeight: Typography.fontWeight.medium,
+    },
+    historyButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 20,
+        borderWidth: 1,
+    },
+    historyButtonText: {
+        fontSize: Typography.fontSize.sm,
+        fontWeight: Typography.fontWeight.semibold,
     },
     questionCard: {
         borderRadius: 24,
