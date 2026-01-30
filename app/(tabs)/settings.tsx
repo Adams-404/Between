@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Switch, TouchableOpacity, ScrollView, StyleSheet, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../hooks/useTheme';
 import { getSettings, saveSettings, Settings as SettingsType, clearAllData } from '../../services/storage';
 import { requestPermissions, scheduleDailyNotification, cancelAllNotifications } from '../../services/notifications';
@@ -8,6 +8,7 @@ import { Typography } from '../../constants/Typography';
 
 export default function SettingsScreen() {
     const { colors, themeMode, setTheme } = useTheme();
+    const insets = useSafeAreaInsets();
     const [settings, setLocalSettings] = useState<SettingsType>({
         theme: 'auto',
         notificationEnabled: false,
@@ -81,8 +82,8 @@ export default function SettingsScreen() {
     };
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-            <View style={styles.header}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['left', 'right', 'bottom']}>
+            <View style={[styles.header, { paddingTop: insets.top || 20 }]}>
                 <Text style={[styles.title, { color: colors.text }]}>
                     Settings
                 </Text>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Modal, TouchableOpacity, TextInput } from 'react-native';
-import { SafeAreaView } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { HistoryItem } from '../../components/HistoryItem';
@@ -13,6 +13,7 @@ import { QUESTIONS } from '../../data/questions';
 
 export default function HistoryScreen() {
     const { colors } = useTheme();
+    const insets = useSafeAreaInsets();
     const [answers, setAnswers] = useState<Answer[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedAnswer, setSelectedAnswer] = useState<{ answer: Answer; date: string } | null>(null);
@@ -120,8 +121,8 @@ export default function HistoryScreen() {
     }
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-            <View style={styles.header}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['left', 'right', 'bottom']}>
+            <View style={[styles.header, { paddingTop: insets.top || 20 }]}>
                 <Text style={[styles.title, { color: colors.text }]}>
                     History
                 </Text>
@@ -278,10 +279,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 16,
-        paddingVertical: 12,
+        paddingVertical: 14,
         borderRadius: 12,
         borderWidth: 1,
         marginRight: 12, // Space between search and filter btn
+        minHeight: 48,
     },
     filterButton: {
         padding: 12,
@@ -289,6 +291,8 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        minHeight: 48,
+        width: 48,
     },
     searchIcon: {
         marginRight: 8,
@@ -296,7 +300,8 @@ const styles = StyleSheet.create({
     searchInput: {
         flex: 1,
         fontSize: Typography.fontSize.base,
-        height: 24,
+        paddingVertical: 0,
+        includeFontPadding: false,
     },
     subtitle: {
         fontSize: Typography.fontSize.base,

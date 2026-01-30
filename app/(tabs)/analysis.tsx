@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, ScrollView, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
-import { SafeAreaView } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../hooks/useTheme';
@@ -10,6 +10,7 @@ import { Typography } from '../../constants/Typography';
 
 export default function AnalysisScreen() {
     const { colors } = useTheme();
+    const insets = useSafeAreaInsets();
     const [isLoading, setIsLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
     const [result, setResult] = useState<AnalysisResult | null>(null);
@@ -50,8 +51,8 @@ export default function AnalysisScreen() {
     }
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-            <View style={styles.header}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['left', 'right', 'bottom']}>
+            <View style={[styles.header, { paddingTop: insets.top || 20 }]}>
                 <Text style={[styles.title, { color: colors.text }]}>
                     Insights
                 </Text>
