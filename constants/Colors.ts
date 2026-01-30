@@ -1,34 +1,61 @@
+/**
+ * Apple iOS System Colors
+ * Matching official Apple Human Interface Guidelines
+ */
+
 export const Colors = {
     light: {
-        background: '#FFFFFF',
-        cardBackground: '#F5F5F7',
-        text: '#000000',
-        textSecondary: '#6B7280',
-        textTertiary: '#9CA3AF',
-        primary: '#4F46E5',
-        primaryLight: '#818CF8',
-        border: '#E5E7EB',
-        borderLight: '#F3F4F6',
-        success: '#10B981',
-        muted: '#D1D5DB',
-        tabIconDefault: '#9CA3AF',
-        tabIconSelected: '#4F46E5',
-        accent: '#4F46E5',
+        // Backgrounds
+        background: '#FFFFFF',              // White
+        cardBackground: '#F2F2F7',          // System Gray 6
+
+        // Text
+        text: '#000000',                    // Black (Primary Label)
+        textSecondary: '#3C3C43',           // System Gray (Secondary Label) with 60% opacity
+        textTertiary: '#8E8E93',           // System Gray (Tertiary Label)
+
+        // Apple Blue (SF Blue)
+        primary: '#007AFF',                 // System Blue
+        primaryLight: '#5AC8FA',            // Light Blue
+
+        // Borders & Separators
+        border: '#C6C6C8',                  // System Gray 4 (Separator)
+        borderLight: '#E5E5EA',             // System Gray 5 (Fill)
+
+        // Other System Colors
+        success: '#34C759',                 // System Green
+        muted: '#AEAEB2',                   // System Gray 3
+
+        // Tab Bar
+        tabIconDefault: '#8E8E93',          // System Gray
+        tabIconSelected: '#007AFF',         // System Blue
+        accent: '#007AFF',                  // System Blue
     },
     dark: {
-        background: '#000000', // Pure Black
-        cardBackground: '#121212', // Dark Grey for cards
-        text: '#FFFFFF',
-        textSecondary: '#A1A1AA',
-        textTertiary: '#52525B',
-        primary: '#818CF8',
-        primaryLight: '#A5B4FC',
-        border: '#27272A',
-        borderLight: '#3F3F46',
-        success: '#34D399',
-        muted: '#52525B',
-        tabIconDefault: '#52525B',
-        tabIconSelected: '#818CF8',
-        accent: '#818CF8',
+        // Backgrounds
+        background: '#000000',              // Pure Black
+        cardBackground: '#1C1C1E',          // System Gray 6 Dark
+
+        // Text
+        text: '#FFFFFF',                    // White (Primary Label)
+        textSecondary: '#EBEBF5',           // System Gray (Secondary Label) with 60% opacity
+        textTertiary: '#8E8E93',           // System Gray (Tertiary Label)
+
+        // Apple Blue (SF Blue for Dark Mode)
+        primary: '#0A84FF',                 // System Blue (Dark)
+        primaryLight: '#64D2FF',            // Light Blue (Dark)
+
+        // Borders & Separators
+        border: '#38383A',                  // System Gray 4 Dark (Separator)
+        borderLight: '#48484A',             // System Gray 5 Dark (Fill)
+
+        // Other System Colors
+        success: '#32D74B',                 // System Green (Dark)
+        muted: '#636366',                   // System Gray 3 Dark
+
+        // Tab Bar
+        tabIconDefault: '#8E8E93',          // System Gray
+        tabIconSelected: '#0A84FF',         // System Blue (Dark)
+        accent: '#0A84FF',                  // System Blue (Dark)
     },
 };

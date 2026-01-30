@@ -11,38 +11,61 @@ export default function TabLayout() {
     return (
         <Tabs
             screenOptions={{
-                tabBarActiveTintColor: colors.primary, // More vibrant active color
+                tabBarActiveTintColor: theme === 'dark' ? '#0A84FF' : '#007AFF',
                 tabBarInactiveTintColor: colors.textTertiary,
                 headerShown: false,
                 tabBarStyle: {
                     position: 'absolute',
-                    bottom: 25,
-                    left: 20,
-                    right: 20,
+                    bottom: Platform.OS === 'ios' ? 20 : 16,
+                    left: 16,
+                    right: 16,
                     elevation: 0,
-                    backgroundColor: theme === 'dark' ? '#121212' : '#FFFFFF', // Solid background for readability
-                    borderRadius: 30,
-                    height: 70, // Increased height
+                    backgroundColor: 'transparent',
+                    borderRadius: 28,
+                    height: Platform.OS === 'ios' ? 88 : 70,
                     borderTopWidth: 0,
-                    // Shadow for depth
-                    shadowColor: '#000',
+                    overflow: 'hidden',
+                    // Liquid Glass shadow effect
+                    shadowColor: theme === 'dark' ? '#000' : '#007AFF',
                     shadowOffset: {
                         width: 0,
-                        height: 4,
+                        height: 8,
                     },
-                    shadowOpacity: 0.2, // Reduced opacity
-                    shadowRadius: 10,
-                    paddingBottom: 10, // Add padding bottom
+                    shadowOpacity: theme === 'dark' ? 0.4 : 0.15,
+                    shadowRadius: 24,
+                    paddingTop: Platform.OS === 'ios' ? 8 : 0,
+                    paddingBottom: Platform.OS === 'ios' ? 24 : 10,
                 },
-                // Remove BlurView background as it often conflicts with solid designs or simple gradients
-                tabBarBackground: undefined, // Let the backgroundColor handle it for simplicity and reliability
+                // Apple Liquid Glass blur background
+                tabBarBackground: () => (
+                    <BlurView
+                        intensity={theme === 'dark' ? 95 : 75}
+                        tint={theme === 'dark' ? 'dark' : 'light'}
+                        style={{
+                            ...StyleSheet.absoluteFillObject,
+                            backgroundColor: theme === 'dark'
+                                ? 'rgba(18, 18, 18, 0.85)'
+                                : 'rgba(255, 255, 255, 0.9)',
+                            borderRadius: 28,
+                            borderWidth: 1,
+                            borderColor: theme === 'dark'
+                                ? 'rgba(255, 255, 255, 0.15)'
+                                : 'rgba(0, 0, 0, 0.08)',
+                        }}
+                    />
+                ),
                 tabBarItemStyle: {
-                    paddingTop: 10,
+                    paddingVertical: 4,
+                    marginHorizontal: 4,
                 },
                 tabBarLabelStyle: {
-                    fontSize: 12,
-                    fontWeight: '500',
-                    marginBottom: 5,
+                    fontSize: 11,
+                    fontWeight: '600',
+                    marginTop: 4,
+                    marginBottom: Platform.OS === 'ios' ? 0 : 2,
+                },
+                tabBarIconStyle: {
+                    marginTop: 4,
                 },
             }}
         >
@@ -56,11 +79,20 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
-                name="history"
+                name="journal"
                 options={{
-                    title: 'History',
+                    title: 'Journal',
                     tabBarIcon: ({ color, size }: { color: string; size: number }) => (
-                        <Ionicons name="book-outline" size={size} color={color} />
+                        <Ionicons name="create-outline" size={size} color={color} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="insights"
+                options={{
+                    title: 'Insights',
+                    tabBarIcon: ({ color, size }: { color: string; size: number }) => (
+                        <Ionicons name="stats-chart-outline" size={size} color={color} />
                     ),
                 }}
             />

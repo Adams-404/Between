@@ -1,21 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Switch, TouchableOpacity, ScrollView, StyleSheet, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native';
+import { View, Text, Switch, TouchableOpacity, ScrollView, StyleSheet, Alert, Linking } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../hooks/useTheme';
-import { getSettings, saveSettings, Settings as SettingsType, clearAllData } from '../../services/storage';
+import { getSettings, saveSettings, Settings as SettingsType, clearAllData, getAllAnswers } from '../../services/storage';
 import { requestPermissions, scheduleDailyNotification, cancelAllNotifications } from '../../services/notifications';
 import { Typography } from '../../constants/Typography';
 
 export default function SettingsScreen() {
-    const { colors, themeMode, setTheme } = useTheme();
+    const { colors, theme, themeMode, setTheme, fontPreference, setFontPreference } = useTheme();
+    const insets = useSafeAreaInsets();
     const [settings, setLocalSettings] = useState<SettingsType>({
-        theme: 'auto',
+        theme: 'light',
         notificationEnabled: false,
         notificationTime: '09:00',
+        fontPreference: 'apple',
     });
+    const [totalEntries, setTotalEntries] = useState(0);
 
     useEffect(() => {
         loadSettings();
+        loadStats();
     }, []);
 
     const loadSettings = async () => {
@@ -23,13 +28,21 @@ export default function SettingsScreen() {
         setLocalSettings(loaded);
     };
 
-    const handleThemeChange = async () => {
-        const modes: Array<'light' | 'dark' | 'auto'> = ['light', 'dark', 'auto'];
-        const currentIndex = modes.indexOf(themeMode);
-        const nextMode = modes[(currentIndex + 1) % modes.length];
+    const loadStats = async () => {
+        const answers = await getAllAnswers();
+        setTotalEntries(answers.length);
+    };
 
-        await setTheme(nextMode);
-        setLocalSettings(prev => ({ ...prev, theme: nextMode }));
+    const handleThemeToggle = async (value: boolean) => {
+        const newTheme = value ? 'dark' : 'light';
+        await setTheme(newTheme);
+        setLocalSettings(prev => ({ ...prev, theme: newTheme }));
+    };
+
+    const handleFontChange = async () => {
+        const newFont = fontPreference === 'apple' ? 'system' : 'apple';
+        await setFontPreference(newFont);
+        setLocalSettings(prev => ({ ...prev, fontPreference: newFont }));
     };
 
     const handleNotificationToggle = async (value: boolean) => {
@@ -42,7 +55,6 @@ export default function SettingsScreen() {
                 );
                 return;
             }
-
             await scheduleDailyNotification(settings.notificationTime);
         } else {
             await cancelAllNotifications();
@@ -51,6 +63,18 @@ export default function SettingsScreen() {
         const updated = { ...settings, notificationEnabled: value };
         await saveSettings(updated);
         setLocalSettings(updated);
+    };
+
+    const handleExportData = async () => {
+        const answers = await getAllAnswers();
+        const dataStr = JSON.stringify(answers, null, 2);
+
+        Alert.alert(
+            'Export Data',
+            `You have ${answers.length} entries. Export functionality would save this data to a file.`,
+            [{ text: 'OK' }]
+        );
+        console.log('Export data:', dataStr);
     };
 
     const handleClearData = () => {
@@ -65,6 +89,7 @@ export default function SettingsScreen() {
                     onPress: async () => {
                         await clearAllData();
                         await loadSettings();
+                        await loadStats();
                         Alert.alert('Done', 'All data has been cleared.');
                     },
                 },
@@ -72,98 +97,273 @@ export default function SettingsScreen() {
         );
     };
 
-    const getThemeLabel = () => {
-        switch (themeMode) {
-            case 'light': return 'Light';
-            case 'dark': return 'Dark';
-            case 'auto': return 'Auto';
-        }
+    const handleRateApp = () => {
+        Alert.alert('Rate App', 'This would open the App Store rating page.');
+    };
+
+    const handleShareApp = () => {
+        Alert.alert('Share App', 'This would open the share dialog.');
+    };
+
+    const handlePrivacy = () => {
+        Alert.alert('Privacy Policy', 'Your data is stored locally on your device and never shared.');
+    };
+
+    const handleTerms = () => {
+        Alert.alert('Terms of Service', 'Terms and conditions would be displayed here.');
+    };
+
+    const handleSupport = () => {
+        Alert.alert('Support', 'Contact support at support@dailyquestions.app');
+    };
+
+    const getFontLabel = () => {
+        return fontPreference === 'apple' ? 'Apple SF Pro' : 'System Font';
     };
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-            <View style={styles.header}>
-                <Text style={[styles.title, { color: colors.text }]}>
-                    Settings
-                </Text>
-            </View>
-
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['left', 'right', 'bottom']}>
             <ScrollView
-                contentContainerStyle={styles.scrollContent}
+                style={styles.scrollView}
+                contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 20 }]}
                 showsVerticalScrollIndicator={false}
             >
                 {/* Appearance */}
                 <View style={styles.section}>
                     <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
-                        Appearance
+                        APPEARANCE
                     </Text>
 
-                    <TouchableOpacity
-                        style={[styles.row, { backgroundColor: colors.cardBackground }]}
-                        onPress={handleThemeChange}
-                    >
-                        <Text style={[styles.rowLabel, { color: colors.text }]}>
-                            Theme
-                        </Text>
-                        <Text style={[styles.rowValue, { color: colors.primary }]}>
-                            {getThemeLabel()}
-                        </Text>
-                    </TouchableOpacity>
+                    <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
+                        <View style={[styles.row, styles.rowNoBorder]}>
+                            <View style={styles.rowLeft}>
+                                <Ionicons name="moon" size={20} color={colors.primary} />
+                                <Text style={[styles.rowLabel, { color: colors.text }]}>
+                                    Dark Mode
+                                </Text>
+                            </View>
+                            <Switch
+                                value={theme === 'dark'}
+                                onValueChange={handleThemeToggle}
+                                trackColor={{ false: colors.muted, true: colors.primaryLight }}
+                                thumbColor={theme === 'dark' ? colors.primary : '#f4f3f4'}
+                            />
+                        </View>
+
+                        <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+                        <TouchableOpacity
+                            style={[styles.row, styles.rowNoBorder]}
+                            onPress={handleFontChange}
+                        >
+                            <View style={styles.rowLeft}>
+                                <Ionicons name="text" size={20} color={colors.primary} />
+                                <Text style={[styles.rowLabel, { color: colors.text }]}>
+                                    Font
+                                </Text>
+                            </View>
+                            <View style={styles.rowRight}>
+                                <Text style={[styles.rowValue, { color: colors.textSecondary }]}>
+                                    {getFontLabel()}
+                                </Text>
+                                <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+                            </View>
+                        </TouchableOpacity>
+                    </View>
                 </View>
 
                 {/* Notifications */}
                 <View style={styles.section}>
                     <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
-                        Notifications
+                        NOTIFICATIONS
                     </Text>
 
-                    <View style={[styles.row, { backgroundColor: colors.cardBackground }]}>
-                        <View style={styles.rowContent}>
-                            <Text style={[styles.rowLabel, { color: colors.text }]}>
-                                Daily Reminder
-                            </Text>
-                            <Text style={[styles.rowDescription, { color: colors.textTertiary }]}>
-                                A gentle reminder at {settings.notificationTime}
-                            </Text>
+                    <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
+                        <View style={[styles.row, styles.rowNoBorder]}>
+                            <View style={styles.rowLeft}>
+                                <Ionicons name="notifications" size={20} color={colors.primary} />
+                                <View style={styles.rowContent}>
+                                    <Text style={[styles.rowLabel, { color: colors.text }]}>
+                                        Daily Reminder
+                                    </Text>
+                                    <Text style={[styles.rowDescription, { color: colors.textTertiary }]}>
+                                        {settings.notificationTime}
+                                    </Text>
+                                </View>
+                            </View>
+                            <Switch
+                                value={settings.notificationEnabled}
+                                onValueChange={handleNotificationToggle}
+                                trackColor={{ false: colors.muted, true: colors.primaryLight }}
+                                thumbColor={settings.notificationEnabled ? colors.primary : '#f4f3f4'}
+                            />
                         </View>
-                        <Switch
-                            value={settings.notificationEnabled}
-                            onValueChange={handleNotificationToggle}
-                            trackColor={{ false: colors.muted, true: colors.primaryLight }}
-                            thumbColor={settings.notificationEnabled ? colors.primary : '#f4f3f4'}
-                        />
+                    </View>
+                </View>
+
+                {/* Data & Storage */}
+                <View style={styles.section}>
+                    <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
+                        DATA & STORAGE
+                    </Text>
+
+                    <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
+                        <View style={[styles.row, styles.rowNoBorder]}>
+                            <View style={styles.rowLeft}>
+                                <Ionicons name="stats-chart" size={20} color={colors.primary} />
+                                <View style={styles.rowContent}>
+                                    <Text style={[styles.rowLabel, { color: colors.text }]}>
+                                        Total Entries
+                                    </Text>
+                                    <Text style={[styles.rowDescription, { color: colors.textTertiary }]}>
+                                        {totalEntries} reflections saved
+                                    </Text>
+                                </View>
+                            </View>
+                            <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+                        </View>
+
+                        <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+                        <TouchableOpacity
+                            style={[styles.row, styles.rowNoBorder]}
+                            onPress={handleExportData}
+                        >
+                            <View style={styles.rowLeft}>
+                                <Ionicons name="download" size={20} color={colors.primary} />
+                                <Text style={[styles.rowLabel, { color: colors.text }]}>
+                                    Export Data
+                                </Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+                        </TouchableOpacity>
+
+                        <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+                        <TouchableOpacity
+                            style={[styles.row, styles.rowNoBorder]}
+                            onPress={handleClearData}
+                        >
+                            <View style={styles.rowLeft}>
+                                <Ionicons name="trash" size={20} color="#EF4444" />
+                                <Text style={[styles.rowLabel, { color: '#EF4444' }]}>
+                                    Clear All Data
+                                </Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+                {/* Privacy & Security */}
+                <View style={styles.section}>
+                    <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
+                        PRIVACY & SECURITY
+                    </Text>
+
+                    <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
+                        <TouchableOpacity
+                            style={[styles.row, styles.rowNoBorder]}
+                            onPress={handlePrivacy}
+                        >
+                            <View style={styles.rowLeft}>
+                                <Ionicons name="shield-checkmark" size={20} color={colors.primary} />
+                                <Text style={[styles.rowLabel, { color: colors.text }]}>
+                                    Privacy Policy
+                                </Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+                        </TouchableOpacity>
+
+                        <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+                        <TouchableOpacity
+                            style={[styles.row, styles.rowNoBorder]}
+                            onPress={handleTerms}
+                        >
+                            <View style={styles.rowLeft}>
+                                <Ionicons name="document-text" size={20} color={colors.primary} />
+                                <Text style={[styles.rowLabel, { color: colors.text }]}>
+                                    Terms of Service
+                                </Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+                {/* Help & Support */}
+                <View style={styles.section}>
+                    <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
+                        HELP & SUPPORT
+                    </Text>
+
+                    <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
+                        <TouchableOpacity
+                            style={[styles.row, styles.rowNoBorder]}
+                            onPress={handleSupport}
+                        >
+                            <View style={styles.rowLeft}>
+                                <Ionicons name="help-circle" size={20} color={colors.primary} />
+                                <Text style={[styles.rowLabel, { color: colors.text }]}>
+                                    Contact Support
+                                </Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+                        </TouchableOpacity>
+
+                        <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+                        <TouchableOpacity
+                            style={[styles.row, styles.rowNoBorder]}
+                            onPress={handleRateApp}
+                        >
+                            <View style={styles.rowLeft}>
+                                <Ionicons name="star" size={20} color={colors.primary} />
+                                <Text style={[styles.rowLabel, { color: colors.text }]}>
+                                    Rate App
+                                </Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+                        </TouchableOpacity>
+
+                        <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+                        <TouchableOpacity
+                            style={[styles.row, styles.rowNoBorder]}
+                            onPress={handleShareApp}
+                        >
+                            <View style={styles.rowLeft}>
+                                <Ionicons name="share-social" size={20} color={colors.primary} />
+                                <Text style={[styles.rowLabel, { color: colors.text }]}>
+                                    Share App
+                                </Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+                        </TouchableOpacity>
                     </View>
                 </View>
 
                 {/* About */}
                 <View style={styles.section}>
                     <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
-                        About
+                        ABOUT
                     </Text>
 
-                    <View style={[styles.infoBox, { backgroundColor: colors.cardBackground }]}>
-                        <Text style={[styles.infoText, { color: colors.textSecondary }]}>
-                            This is a calm space for daily reflection. No pressure, no streaks, no judgment.
-                            {'\n\n'}
-                            Just one question per day, and your honest answer.
+                    <View style={[styles.infoCard, { backgroundColor: colors.cardBackground }]}>
+                        <View style={styles.appIcon}>
+                            <Ionicons name="calendar" size={32} color={colors.primary} />
+                        </View>
+                        <Text style={[styles.appName, { color: colors.text }]}>
+                            Between
+                        </Text>
+                        <Text style={[styles.appVersion, { color: colors.textSecondary }]}>
+                            Version 1.0.0
+                        </Text>
+                        <Text style={[styles.appDescription, { color: colors.textTertiary }]}>
+                            A calm space for daily reflection. One question per day, your honest answer.
                         </Text>
                     </View>
-                </View>
-
-                {/* Data */}
-                <View style={styles.section}>
-                    <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
-                        Data
-                    </Text>
-
-                    <TouchableOpacity
-                        style={[styles.destructiveRow, { backgroundColor: colors.cardBackground }]}
-                        onPress={handleClearData}
-                    >
-                        <Text style={styles.destructiveText}>
-                            Clear All Data
-                        </Text>
-                    </TouchableOpacity>
                 </View>
             </ScrollView>
         </SafeAreaView>
@@ -174,36 +374,48 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    header: {
-        padding: 20,
-        paddingBottom: 16,
-    },
-    title: {
-        fontSize: Typography.fontSize.xxxl,
-        fontWeight: Typography.fontWeight.bold,
+    scrollView: {
+        flex: 1,
     },
     scrollContent: {
         padding: 20,
-        paddingTop: 0,
-        paddingBottom: 100,
+        paddingBottom: 120,
     },
     section: {
-        marginBottom: 32,
+        marginBottom: 28,
     },
     sectionTitle: {
-        fontSize: Typography.fontSize.sm,
+        fontSize: Typography.fontSize.xs,
         fontWeight: Typography.fontWeight.semibold,
-        marginBottom: 12,
-        textTransform: 'uppercase',
+        marginBottom: 10,
+        marginLeft: 4,
         letterSpacing: 0.5,
+    },
+    card: {
+        borderRadius: 12,
+        overflow: 'hidden',
     },
     row: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 16,
-        borderRadius: 12,
-        marginBottom: 8,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        minHeight: 52,
+    },
+    rowNoBorder: {
+        borderBottomWidth: 0,
+    },
+    rowLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+        gap: 12,
+    },
+    rowRight: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
     },
     rowContent: {
         flex: 1,
@@ -211,31 +423,43 @@ const styles = StyleSheet.create({
     rowLabel: {
         fontSize: Typography.fontSize.base,
         fontWeight: Typography.fontWeight.medium,
-        marginBottom: 2,
     },
     rowDescription: {
         fontSize: Typography.fontSize.sm,
+        marginTop: 2,
     },
     rowValue: {
-        fontSize: Typography.fontSize.base,
-        fontWeight: Typography.fontWeight.semibold,
-    },
-    infoBox: {
-        padding: 16,
-        borderRadius: 12,
-    },
-    infoText: {
         fontSize: Typography.fontSize.sm,
-        lineHeight: Typography.fontSize.sm * Typography.lineHeight.relaxed,
     },
-    destructiveRow: {
-        padding: 16,
+    divider: {
+        height: 0.5,
+        marginLeft: 48,
+    },
+    infoCard: {
         borderRadius: 12,
+        padding: 24,
         alignItems: 'center',
     },
-    destructiveText: {
-        fontSize: Typography.fontSize.base,
-        fontWeight: Typography.fontWeight.semibold,
-        color: '#EF4444',
+    appIcon: {
+        width: 72,
+        height: 72,
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 16,
+    },
+    appName: {
+        fontSize: Typography.fontSize.xl,
+        fontWeight: Typography.fontWeight.bold,
+        marginBottom: 4,
+    },
+    appVersion: {
+        fontSize: Typography.fontSize.sm,
+        marginBottom: 16,
+    },
+    appDescription: {
+        fontSize: Typography.fontSize.sm,
+        textAlign: 'center',
+        lineHeight: Typography.fontSize.sm * 1.5,
     },
 });
