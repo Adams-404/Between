@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../../hooks/useTheme';
 import { Typography } from '../../constants/Typography';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { triggerHaptic, triggerSuccessHaptic, triggerWarningHaptic } from '../../utils/haptics';
 
 interface JournalEntry {
     id: string;
@@ -91,6 +92,7 @@ export default function JournalScreen() {
             allEntries.push(newEntry);
             await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(allEntries));
 
+            triggerSuccessHaptic(); // Haptic on successful save
             setCurrentEntry('');
             setSelectedMood(undefined);
             setIsExpanded(false);
@@ -117,6 +119,7 @@ export default function JournalScreen() {
                                 const allEntries: JournalEntry[] = JSON.parse(stored);
                                 const filtered = allEntries.filter(entry => entry.id !== id);
                                 await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+                                triggerWarningHaptic(); // Haptic on delete
                                 await loadEntries();
                             }
                         } catch (error) {
@@ -211,7 +214,10 @@ export default function JournalScreen() {
                                         {MOODS.map((mood) => (
                                             <TouchableOpacity
                                                 key={mood.label}
-                                                onPress={() => setSelectedMood(mood.label)}
+                                                onPress={() => {
+                                                    triggerHaptic();
+                                                    setSelectedMood(mood.label);
+                                                }}
                                                 style={[
                                                     styles.moodButton,
                                                     {
@@ -247,6 +253,7 @@ export default function JournalScreen() {
                                 <View style={styles.writeActions}>
                                     <TouchableOpacity
                                         onPress={() => {
+                                            triggerHaptic();
                                             setCurrentEntry('');
                                             setSelectedMood(undefined);
                                             setIsExpanded(false);
@@ -283,7 +290,10 @@ export default function JournalScreen() {
                                             backgroundColor: colors.cardBackground,
                                             borderColor: colors.border,
                                         }]}
-                                        onPress={() => setSelectedEntry(entry)}
+                                        onPress={() => {
+                                            triggerHaptic();
+                                            setSelectedEntry(entry);
+                                        }}
                                         activeOpacity={0.7}
                                     >
                                         <View style={styles.entryHeader}>
@@ -373,6 +383,7 @@ export default function JournalScreen() {
 
                                     <TouchableOpacity
                                         onPress={() => {
+                                            triggerWarningHaptic();
                                             setSelectedEntry(null);
                                             deleteEntry(selectedEntry.id);
                                         }}

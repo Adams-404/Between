@@ -8,6 +8,7 @@ import { useTodayQuestion } from '../../hooks/useTodayQuestion';
 import { saveAnswer, Answer } from '../../services/storage';
 import { getTodayDateString } from '../../services/questions';
 import { Typography } from '../../constants/Typography';
+import { triggerHaptic, triggerSuccessHaptic } from '../../utils/haptics';
 
 export default function TodayScreen() {
     const { colors } = useTheme();
@@ -41,6 +42,7 @@ export default function TodayScreen() {
             };
 
             await saveAnswer(newAnswer);
+            triggerSuccessHaptic(); // Haptic feedback on successful save
             setText('');
             refresh();
         } catch (error) {
@@ -84,7 +86,10 @@ export default function TodayScreen() {
 
                     <TouchableOpacity
                         style={[styles.historyButton, { backgroundColor: colors.cardBackground, borderColor: colors.border }]}
-                        onPress={() => router.push('/history')}
+                        onPress={() => {
+                            triggerHaptic();
+                            router.push('/history');
+                        }}
                     >
                         <Ionicons name="book-outline" size={20} color={colors.primary} />
                         <Text style={[styles.historyButtonText, { color: colors.primary }]}>

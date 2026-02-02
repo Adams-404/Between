@@ -6,6 +6,7 @@ import { useTheme } from '../../hooks/useTheme';
 import { getSettings, saveSettings, Settings as SettingsType, clearAllData, getAllAnswers } from '../../services/storage';
 import { requestPermissions, scheduleDailyNotification, cancelAllNotifications } from '../../services/notifications';
 import { Typography } from '../../constants/Typography';
+import { triggerHaptic, triggerWarningHaptic } from '../../utils/haptics';
 
 export default function SettingsScreen() {
     const { colors, theme, themeMode, setTheme, fontPreference, setFontPreference } = useTheme();
@@ -144,7 +145,10 @@ export default function SettingsScreen() {
                             </View>
                             <Switch
                                 value={theme === 'dark'}
-                                onValueChange={handleThemeToggle}
+                                onValueChange={(value) => {
+                                    triggerHaptic();
+                                    handleThemeToggle(value);
+                                }}
                                 trackColor={{ false: colors.muted, true: colors.primaryLight }}
                                 thumbColor={theme === 'dark' ? colors.primary : '#f4f3f4'}
                             />
@@ -154,7 +158,10 @@ export default function SettingsScreen() {
 
                         <TouchableOpacity
                             style={[styles.row, styles.rowNoBorder]}
-                            onPress={handleFontChange}
+                            onPress={() => {
+                                triggerHaptic();
+                                handleFontChange();
+                            }}
                         >
                             <View style={styles.rowLeft}>
                                 <Ionicons name="text" size={20} color={colors.primary} />
@@ -193,7 +200,10 @@ export default function SettingsScreen() {
                             </View>
                             <Switch
                                 value={settings.notificationEnabled}
-                                onValueChange={handleNotificationToggle}
+                                onValueChange={(value) => {
+                                    triggerHaptic();
+                                    handleNotificationToggle(value);
+                                }}
                                 trackColor={{ false: colors.muted, true: colors.primaryLight }}
                                 thumbColor={settings.notificationEnabled ? colors.primary : '#f4f3f4'}
                             />
@@ -227,7 +237,10 @@ export default function SettingsScreen() {
 
                         <TouchableOpacity
                             style={[styles.row, styles.rowNoBorder]}
-                            onPress={handleExportData}
+                            onPress={() => {
+                                triggerHaptic();
+                                handleExportData();
+                            }}
                         >
                             <View style={styles.rowLeft}>
                                 <Ionicons name="download" size={20} color={colors.primary} />
@@ -242,7 +255,10 @@ export default function SettingsScreen() {
 
                         <TouchableOpacity
                             style={[styles.row, styles.rowNoBorder]}
-                            onPress={handleClearData}
+                            onPress={() => {
+                                triggerWarningHaptic();
+                                handleClearData();
+                            }}
                         >
                             <View style={styles.rowLeft}>
                                 <Ionicons name="trash" size={20} color="#EF4444" />
@@ -264,7 +280,10 @@ export default function SettingsScreen() {
                     <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
                         <TouchableOpacity
                             style={[styles.row, styles.rowNoBorder]}
-                            onPress={handlePrivacy}
+                            onPress={() => {
+                                triggerHaptic();
+                                handlePrivacy();
+                            }}
                         >
                             <View style={styles.rowLeft}>
                                 <Ionicons name="shield-checkmark" size={20} color={colors.primary} />
@@ -279,7 +298,10 @@ export default function SettingsScreen() {
 
                         <TouchableOpacity
                             style={[styles.row, styles.rowNoBorder]}
-                            onPress={handleTerms}
+                            onPress={() => {
+                                triggerHaptic();
+                                handleTerms();
+                            }}
                         >
                             <View style={styles.rowLeft}>
                                 <Ionicons name="document-text" size={20} color={colors.primary} />
@@ -301,7 +323,10 @@ export default function SettingsScreen() {
                     <View style={[styles.card, { backgroundColor: colors.cardBackground }]}>
                         <TouchableOpacity
                             style={[styles.row, styles.rowNoBorder]}
-                            onPress={handleSupport}
+                            onPress={() => {
+                                triggerHaptic();
+                                handleSupport();
+                            }}
                         >
                             <View style={styles.rowLeft}>
                                 <Ionicons name="help-circle" size={20} color={colors.primary} />
@@ -316,7 +341,10 @@ export default function SettingsScreen() {
 
                         <TouchableOpacity
                             style={[styles.row, styles.rowNoBorder]}
-                            onPress={handleRateApp}
+                            onPress={() => {
+                                triggerHaptic();
+                                handleRateApp();
+                            }}
                         >
                             <View style={styles.rowLeft}>
                                 <Ionicons name="star" size={20} color={colors.primary} />
@@ -331,7 +359,10 @@ export default function SettingsScreen() {
 
                         <TouchableOpacity
                             style={[styles.row, styles.rowNoBorder]}
-                            onPress={handleShareApp}
+                            onPress={() => {
+                                triggerHaptic();
+                                handleShareApp();
+                            }}
                         >
                             <View style={styles.rowLeft}>
                                 <Ionicons name="share-social" size={20} color={colors.primary} />

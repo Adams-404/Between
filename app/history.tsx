@@ -7,6 +7,7 @@ import { useTheme } from '../hooks/useTheme';
 import { getAllAnswers, Answer } from '../services/storage';
 import { Typography } from '../constants/Typography';
 import { format } from 'date-fns';
+import { triggerHaptic } from '../utils/haptics';
 
 type FilterType = 'all' | 'week' | 'month' | 'year';
 
@@ -87,7 +88,10 @@ export default function HistoryScreen() {
             <View style={styles.header}>
                 <TouchableOpacity
                     style={styles.backButton}
-                    onPress={() => router.back()}
+                    onPress={() => {
+                        triggerHaptic();
+                        router.back();
+                    }}
                 >
                     <Ionicons name="arrow-back" size={24} color={colors.primary} />
                 </TouchableOpacity>
@@ -109,7 +113,10 @@ export default function HistoryScreen() {
                         onChangeText={setSearchQuery}
                     />
                     {searchQuery.length > 0 && (
-                        <TouchableOpacity onPress={() => setSearchQuery('')}>
+                        <TouchableOpacity onPress={() => {
+                            triggerHaptic();
+                            setSearchQuery('');
+                        }}>
                             <Ionicons name="close-circle" size={20} color={colors.textTertiary} />
                         </TouchableOpacity>
                     )}
@@ -133,7 +140,10 @@ export default function HistoryScreen() {
                                 borderColor: filter === f ? colors.primary : colors.border,
                             }
                         ]}
-                        onPress={() => setFilter(f)}
+                        onPress={() => {
+                            triggerHaptic();
+                            setFilter(f);
+                        }}
                     >
                         <Text style={[
                             styles.filterText,

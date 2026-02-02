@@ -4,9 +4,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { useTheme } from '../../hooks/useTheme';
+import { triggerHaptic } from '../../utils/haptics';
 
 export default function TabLayout() {
     const { colors, theme } = useTheme();
+
+    // Haptic feedback for tab press - using softest feedback
+    const handleTabPress = () => {
+        triggerHaptic();
+    };
 
     return (
         <Tabs
@@ -71,6 +77,9 @@ export default function TabLayout() {
         >
             <Tabs.Screen
                 name="index"
+                listeners={{
+                    tabPress: handleTabPress,
+                }}
                 options={{
                     title: 'Today',
                     tabBarIcon: ({ color, size }: { color: string; size: number }) => (
@@ -80,6 +89,9 @@ export default function TabLayout() {
             />
             <Tabs.Screen
                 name="journal"
+                listeners={{
+                    tabPress: handleTabPress,
+                }}
                 options={{
                     title: 'Journal',
                     tabBarIcon: ({ color, size }: { color: string; size: number }) => (
@@ -89,6 +101,9 @@ export default function TabLayout() {
             />
             <Tabs.Screen
                 name="insights"
+                listeners={{
+                    tabPress: handleTabPress,
+                }}
                 options={{
                     title: 'Insights',
                     tabBarIcon: ({ color, size }: { color: string; size: number }) => (
@@ -98,6 +113,9 @@ export default function TabLayout() {
             />
             <Tabs.Screen
                 name="analysis"
+                listeners={{
+                    tabPress: handleTabPress,
+                }}
                 options={{
                     title: 'Analysis',
                     tabBarIcon: ({ color, size }: { color: string; size: number }) => (
@@ -107,6 +125,9 @@ export default function TabLayout() {
             />
             <Tabs.Screen
                 name="settings"
+                listeners={{
+                    tabPress: handleTabPress,
+                }}
                 options={{
                     title: 'Settings',
                     tabBarIcon: ({ color, size }: { color: string; size: number }) => (
