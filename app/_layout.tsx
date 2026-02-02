@@ -23,7 +23,11 @@ function RootLayoutContent() {
                     },
                 }}
             >
+                <Stack.Screen name="index" />
+                <Stack.Screen name="onboarding" />
                 <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="history" />
+                <Stack.Screen name="profile" />
             </Stack>
         </>
     );
