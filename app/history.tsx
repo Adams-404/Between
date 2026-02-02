@@ -87,13 +87,16 @@ export default function HistoryScreen() {
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity
-                    style={styles.backButton}
+                    style={[styles.backButton, {
+                        backgroundColor: colors.primary + '15',
+                        borderColor: colors.primary + '30',
+                    }]}
                     onPress={() => {
                         triggerHaptic();
                         router.back();
                     }}
                 >
-                    <Ionicons name="arrow-back" size={24} color={colors.primary} />
+                    <Ionicons name="arrow-back" size={22} color={colors.primary} />
                 </TouchableOpacity>
                 <Text style={[styles.title, { color: colors.text }]}>
                     History
@@ -241,7 +244,8 @@ const styles = StyleSheet.create({
     backButton: {
         width: 40,
         height: 40,
-        borderRadius: 20,
+        borderRadius: 12,
+        borderWidth: 1.5,
         alignItems: 'center',
         justifyContent: 'center',
     },
