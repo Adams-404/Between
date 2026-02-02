@@ -129,9 +129,9 @@ export default function TabLayout() {
                     tabPress: handleTabPress,
                 }}
                 options={{
-                    title: 'Settings',
+                    title: 'Me',
                     tabBarIcon: ({ color, size }: { color: string; size: number }) => (
-                        <Ionicons name="settings-outline" size={size} color={color} />
+                        <Ionicons name="person-circle-outline" size={size} color={color} />
                     ),
                 }}
             />
