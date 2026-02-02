@@ -19,11 +19,15 @@ export default function Index() {
 
             // Small delay for smoother transition
             setTimeout(() => {
-                if (hasSeenOnboarding) {
-                    router.replace('/(tabs)');
-                } else {
-                    router.replace('/onboarding');
-                }
+                // TODO: PRODUCTION - Uncomment this check to only show onboarding once
+                // if (hasSeenOnboarding) {
+                //     router.replace('/(tabs)');
+                // } else {
+                //     router.replace('/onboarding');
+                // }
+
+                // DEV MODE: Always show onboarding
+                router.replace('/onboarding');
             }, 500);
         } catch (error) {
             console.error('Error checking onboarding status:', error);
